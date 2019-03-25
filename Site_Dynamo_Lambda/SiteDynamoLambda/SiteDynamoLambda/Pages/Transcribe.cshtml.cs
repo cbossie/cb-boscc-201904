@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace SiteDynamoLambda.Pages
 {
-    public class IndexModel : PageModel
+    [Authorize]
+    public class TranscribeModel : PageModel
     {
         public void OnGet()
         {
-            int a = 3;
+
         }
     }
 }
