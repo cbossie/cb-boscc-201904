@@ -35,11 +35,12 @@ namespace SiteDynamoLambda
 
             // Add Authentication
             var oidcCfg = new OidcConfig();
-            var baseUrl = oidcCfg.BaseUrl;
+            
 
 
 
             Configuration.Bind("CognitoOIDC", oidcCfg);
+            var baseUrl = oidcCfg.BaseUrl;
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
