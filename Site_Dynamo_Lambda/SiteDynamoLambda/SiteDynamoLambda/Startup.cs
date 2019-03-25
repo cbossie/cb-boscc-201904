@@ -36,9 +36,6 @@ namespace SiteDynamoLambda
             // Add Authentication
             var oidcCfg = new OidcConfig();
             
-
-
-
             Configuration.Bind("CognitoOIDC", oidcCfg);
             var baseUrl = oidcCfg.BaseUrl;
             services.AddAuthentication(options =>
@@ -68,19 +65,13 @@ namespace SiteDynamoLambda
                     OnRedirectToIdentityProviderForSignOut = (context) =>
                     {
                         var logoutUri = oidcCfg.LogoutUrl + oidcCfg.ClientId;
-                        logoutUri += $"&logout_uri={Uri.EscapeDataString(baseUrl + "")}";
+                        logoutUri += $"&logout_uri={Uri.EscapeDataString(baseUrl)}";
                         context.Response.Redirect(logoutUri);
                         context.HandleResponse();
                         return Task.CompletedTask;
                     }
                 };
-
-
-
-
             });
-
-
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -102,7 +93,6 @@ namespace SiteDynamoLambda
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
             app.UseMvcWithDefaultRoute();
         }
     }
