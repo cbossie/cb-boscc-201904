@@ -1,11 +1,10 @@
 ﻿using BostonCodeCampModels.Transcribe;
-using SiteDynamoLambda.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SiteDynamoLambda.Services
+namespace BostonCodeCampServices.Service
 {
     public interface ITranscribeDataService
     {

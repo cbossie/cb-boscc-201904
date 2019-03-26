@@ -1,13 +1,11 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.Extensions.NETCore.Setup;
 using BostonCodeCampModels.Transcribe;
-using SiteDynamoLambda.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SiteDynamoLambda.Services
+namespace BostonCodeCampServices.Service
 {
     public class TranscribeDataService : ITranscribeDataService
     {

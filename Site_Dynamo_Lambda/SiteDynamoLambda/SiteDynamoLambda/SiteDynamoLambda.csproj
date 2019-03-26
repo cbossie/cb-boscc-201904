@@ -7,7 +7,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.100.1" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.100.2" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
@@ -17,6 +17,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BostonCodeCampModels\BostonCodeCampModels.csproj" />
+    <ProjectReference Include="..\BostonCodeCampServices\BostonCodeCampServices.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

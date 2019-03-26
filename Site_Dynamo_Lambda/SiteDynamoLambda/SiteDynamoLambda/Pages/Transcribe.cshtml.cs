@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BostonCodeCampServices.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SiteDynamoLambda.Services;
+
 using System;
 using System.Threading.Tasks;
 

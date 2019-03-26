@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2;
+using BostonCodeCampServices.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SiteDynamoLambda.Model;
-using SiteDynamoLambda.Services;
 using System;
 using System.Threading.Tasks;
 

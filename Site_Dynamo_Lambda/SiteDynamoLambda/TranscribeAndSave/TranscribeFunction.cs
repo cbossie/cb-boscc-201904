@@ -16,15 +16,15 @@ namespace TranscribeAndSave
 {
     public class TranscribeFunction
     {
-        private static readonly JsonSerializer _jsonSerializer = new JsonSerializer();
-
         public void FunctionHandler(DynamoDBEvent dynamoEvent, ILambdaContext context)
         {
             context.Logger.LogLine($"Beginning to process {dynamoEvent.Records.Count} records...");
 
             foreach (var record in dynamoEvent.Records)
             {
-                
+                string id = record.Dynamodb.NewImage["id"].S;
+
+
                 context.Logger.LogLine($"Event ID: {record.EventID}");
                 context.Logger.LogLine($"Event Name: {record.EventName}");
 
@@ -32,7 +32,28 @@ namespace TranscribeAndSave
                 var text = record.Dynamodb.NewImage["TextToTranscribe"].S;
                 context.Logger.LogLine($"Going to Transcribe \"{text}\"");
 
+                // Only process if not complete
+                if (!record.Dynamodb.NewImage["Complete"].BOOL)
+                {
+                    context.Logger.LogLine($"Processing Transcription for Item {id}");
+
+
+
+                }
+
+
+
+
                 // Polly Here
+
+
+
+
+
+
+
+
+
 
 
 
@@ -40,28 +61,6 @@ namespace TranscribeAndSave
             }
 
             context.Logger.LogLine("Stream processing complete.");
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        private string SerializeStreamRecord(StreamRecord streamRecord)
-        {
-            using (var writer = new StringWriter())
-            {
-                _jsonSerializer.Serialize(writer, streamRecord);
-                return writer.ToString();
-            }
         }
     }
 }
