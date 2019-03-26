@@ -1,4 +1,5 @@
-﻿using SiteDynamoLambda.Model;
+﻿using BostonCodeCampModels.Transcribe;
+using SiteDynamoLambda.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
