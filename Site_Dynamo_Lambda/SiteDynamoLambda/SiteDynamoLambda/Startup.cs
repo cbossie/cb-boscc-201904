@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SiteDynamoLambda.Model;
+using SiteDynamoLambda.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -25,6 +27,15 @@ namespace SiteDynamoLambda
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Interface to dynamodb    
+            services.AddTransient<ITranscribeDataService, TranscribeDataService>();
+
+            //AWS Services
+            var awsOptions = Configuration.GetAWSOptions();
+            services.AddDefaultAWSOptions(awsOptions);
+            services.AddAWSService<IAmazonDynamoDB>();
+
+
 
             services.Configure<CookiePolicyOptions>(options =>
             {

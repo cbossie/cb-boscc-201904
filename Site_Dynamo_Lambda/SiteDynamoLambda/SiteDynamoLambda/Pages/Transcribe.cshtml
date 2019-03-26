@@ -4,5 +4,30 @@
     ViewData["Title"] = "Transcribe";
 }
 
-<h1>Transcribe</h1>
+<h1>Transcribe-o-matic</h1>
+<div>
+    <form method="post">
+        <div class="form-group">
+            <label for="TextToTranscribe">Enter Text to Transcribe</label>
+            <input type="text" class="form-control" id="TextToTranscribe" name="TextToTranscribe" placeholder="Text Goes Here..." />
 
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+
+<div class="pt-2">
+    @if (Model.IsSuccess)
+    {
+        <div class="alert alert-primary" role="alert">
+            Success!
+        </div>
+    }
+    @if (Model.IsError)
+    {
+        <div class="alert alert-danger" role="alert">
+            There was an error transcribing your text.
+        </div>
+    }
+</div>
