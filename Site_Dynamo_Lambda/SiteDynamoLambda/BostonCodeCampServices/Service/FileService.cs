@@ -25,7 +25,7 @@ namespace BostonCodeCampServices.Service
 
         public string GetFileName(string name)
         {
-            return $"{name}";
+            return $"{name}{Config.FileExtension}";
         }
 
         public async Task<bool> SaveFile(byte[] data, string fileName)
@@ -33,7 +33,7 @@ namespace BostonCodeCampServices.Service
             var ms = new MemoryStream(data);
             var putRequest = new PutObjectRequest()
             {
-                Key = GetFileName(fileName),
+                Key = fileName,
                 ContentType = Config.AudioMimeType,
                 InputStream = ms,
                 BucketName = Config.BucketName
