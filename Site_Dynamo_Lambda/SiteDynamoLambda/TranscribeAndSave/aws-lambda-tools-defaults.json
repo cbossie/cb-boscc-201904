@@ -17,5 +17,5 @@
     "function-name"        : "TranscribeFunction",
     "function-role"        : "arn:aws:iam::014168299099:role/lambda_exec_TranscribeFunction",
     "tracing-mode"         : "Active",
-    "environment-variables" : ""
+    "environment-variables" : "\"ASPNETCORE_ENVIRONMENT\"=\"\""
 }

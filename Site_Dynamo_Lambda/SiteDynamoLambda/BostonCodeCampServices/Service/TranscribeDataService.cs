@@ -77,5 +77,41 @@ namespace BostonCodeCampServices.Service
             }
             return data;
         }
+
+        public async Task<TranscribeData> GetTranscribeData(string id, long timestamp)
+        {
+            TranscribeData data = null;
+            try
+            {
+                using (var ctx = GetContext())
+                {
+                    var item = await ctx.LoadAsync<TranscribeData>(id, timestamp);
+                    data = item;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            return data;
+        }
+
+        public async Task<bool> SaveTranscribeData(TranscribeData data)
+        {
+            var retval = false;
+            try
+            {
+                using (var ctx = GetContext())
+                {
+                    await ctx.SaveAsync(data);
+                    retval = true;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            return retval;
+        }
     }
 }

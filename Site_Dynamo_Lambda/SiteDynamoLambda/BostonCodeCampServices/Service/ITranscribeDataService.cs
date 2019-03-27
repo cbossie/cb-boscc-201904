@@ -10,5 +10,7 @@ namespace BostonCodeCampServices.Service
     {
         Task<bool> AddDataToTranscribe(string text);
         Task<IEnumerable<TranscribeData>> GetLatestDataToTranscribe(DateTime? startDate = null);
+        Task<TranscribeData> GetTranscribeData(string Id, long timestamp);
+        Task<bool> SaveTranscribeData(TranscribeData data);
     }
 }
