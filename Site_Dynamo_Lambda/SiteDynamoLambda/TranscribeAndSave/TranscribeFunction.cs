@@ -14,6 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using TranscribeAndSave.Service;
 using BostonCodeCampServices.Service;
 using Microsoft.Extensions.Configuration;
+using Amazon.Polly;
+using Amazon.S3;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -25,11 +27,16 @@ namespace TranscribeAndSave
         public IConfigurationService ConfigService { get; }
         public IEnvironmentService Environment { get; }
         public ITranscribeDataService TransDataSvc { get; }
+        public IPollyService PollySvc { get; }
+        public IConfiguration Config { get; }
+        public IFileService FileSvc { get; }
 
         public TranscribeFunction()
         {
             Environment = new EnvironmentService();
             ConfigService = new ConfigurationService(Environment);
+            Config = ConfigService.GetConfiguration();
+
 
             // Set up Dependency Injection
             var serviceCollection = new ServiceCollection();
@@ -37,6 +44,8 @@ namespace TranscribeAndSave
             var services = serviceCollection.BuildServiceProvider();
 
             TransDataSvc = services.GetService<ITranscribeDataService>();
+            PollySvc = services.GetService<IPollyService>();
+            FileSvc = services.GetService<IFileService>();
 
         }
 
@@ -46,7 +55,7 @@ namespace TranscribeAndSave
             try
             {
                 context.Logger.LogLine($"Beginning to process {dynamoEvent.Records.Count} records...");
-
+                
                 foreach (var record in dynamoEvent.Records)
                 {
                     string id = record.Dynamodb.NewImage["id"].S;
@@ -66,42 +75,42 @@ namespace TranscribeAndSave
 
                         var item = await TransDataSvc.GetTranscribeData(id, ts);
 
-                        context.Logger.LogLine("Retrieved item");
+                        context.Logger.LogLine("Retrieved item. Beginning Synthesis");
 
 
 
                         // Polly Here
+                        var stream = await PollySvc.TranscribeText(item.TextToTranscribe);
+
+                        context.Logger.LogLine("Transcoded text");
 
 
 
-                        // Save it
-                        item.Complete = true;
-                        item.OutputFileData = "This is a file";
+                        // S3 Here
+                        var fileName = FileSvc.GetFileName(item.Id);
+
+                        context.Logger.LogLine($"Attempting to write file {fileName} to S3");
+
+                        var fileRes = await FileSvc.SaveFile(stream, fileName);
+                        if(fileRes)
+                        {
+                            item.Complete = true;
+                            item.OutputFileData = fileName;
+                        }
+                        else
+                        {
+                            item.OutputFileData = "Error Synthesizing";
+                        }
+
+
+                        //Save Updated Record
                         var res = await TransDataSvc.SaveTranscribeData(item);
                         if (res)
                         {
                             context.Logger.LogLine("Successfully Updated");
                         }
 
-
                     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 }
             }
@@ -115,13 +124,23 @@ namespace TranscribeAndSave
 
         private void ConfigureServices(IServiceCollection services)
         {
+            // Configuration
+            var genConf = new GeneralConfig();
+            Config.Bind("GeneralConfig", genConf);
+            services.AddSingleton<IGeneralConfig>(genConf);
+            
             //AWS Services
             services.AddSingleton(ConfigService);
-            var awsOptions = ConfigService.GetConfiguration().GetAWSOptions();
+            var awsOptions = Config.GetAWSOptions();
             services.AddDefaultAWSOptions(awsOptions);
             services.AddAWSService<IAmazonDynamoDB>();
+            services.AddAWSService<IAmazonPolly>();
+            services.AddAWSService<IAmazonS3>();
+
+
             services.AddTransient<ITranscribeDataService, TranscribeDataService>();
             services.AddTransient<IPollyService, PollyService>();
+            services.AddTransient<IFileService, FileService>();
         }
 
     }

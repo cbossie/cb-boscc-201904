@@ -1,4 +1,7 @@
 using Amazon.DynamoDBv2;
+using Amazon.Polly;
+using Amazon.S3;
+using BostonCodeCampModels.Transcribe;
 using BostonCodeCampServices.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -34,6 +37,12 @@ namespace SiteDynamoLambda
             var awsOptions = Configuration.GetAWSOptions();
             services.AddDefaultAWSOptions(awsOptions);
             services.AddAWSService<IAmazonDynamoDB>();
+            services.AddAWSService<IAmazonPolly>();
+            services.AddAWSService<IAmazonS3>();
+
+            var genConfig = new GeneralConfig();
+            Configuration.Bind("GeneralConfig", genConfig);
+            services.AddSingleton<IGeneralConfig>(genConfig);
 
 
 
