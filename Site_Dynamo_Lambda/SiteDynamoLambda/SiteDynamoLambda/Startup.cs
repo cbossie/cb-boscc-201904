@@ -33,6 +33,7 @@ namespace SiteDynamoLambda
         {
             // Interface to dynamodb    
             services.AddTransient<ITranscribeDataService, TranscribeDataService>();
+            services.AddTransient<IFileService, FileService>();
 
             //AWS Services
             var awsOptions = Configuration.GetAWSOptions();

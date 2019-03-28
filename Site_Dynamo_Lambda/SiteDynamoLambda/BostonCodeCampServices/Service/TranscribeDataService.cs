@@ -60,11 +60,11 @@ namespace BostonCodeCampServices.Service
             {
                 using (var ctx = GetContext())
                 {
-                    var dateTimeCond = new ScanCondition("timestamp",
+                    var dateTimeCond = new ScanCondition(nameof(TranscribeData.TimeStamp),
                         Amazon.DynamoDBv2.DocumentModel.ScanOperator.GreaterThan,
                         startDate.Value.Ticks);
                     
-
+                    
                     var search = ctx.ScanAsync<TranscribeData>(new[] { dateTimeCond });
                     var items = await search.GetRemainingAsync();
 

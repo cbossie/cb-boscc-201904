@@ -1,0 +1,74 @@
+﻿@page "{handler?}"
+@model SiteDynamoLambda.Pages.RecordingsModel
+@{
+    ViewData["Title"] = "Recordings";
+}
+
+<h1>Previously Recorded Clips</h1>
+
+<div class="row">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Creation Date</th>
+                <th scope="col">Transcribed Text</th>
+                <th scope="col">Is Complete?</th>
+                <th scope="col">FileName</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.Data)
+            {
+                <tr>
+                    <td>@d.CreateDate.ToString("M/d/yyyy hh:mm:ss")</td>
+                    <td>
+                        @d.TextToTranscribe
+
+                    </td>
+                    <td>
+                        @if (d.Complete)
+                        {
+                            <span>Yes</span>
+                        }
+
+                    </td>
+                    <td>
+                        @if (d.Complete)
+                        {
+                            <a href="#" onclick="setAudio('@d.OutputFileData')">@d.OutputFileData</a>
+                        }
+                        else
+                        {
+                            @d.OutputFileData
+                        }
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+
+</div>
+
+<div class="row">
+
+    <audio id="audioElement"></audio>
+</div>
+
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var setAudio = function (file) {
+
+            var audioElement = document.getElementById('audioElement');
+             audioElement.setAttribute('preload', "none");
+            audioElement.setAttribute('src', '/Recordings/Download?file=' + file);
+            audioElement.play();
+        };
+        window.setAudio = setAudio;
+    </script>
+
+}

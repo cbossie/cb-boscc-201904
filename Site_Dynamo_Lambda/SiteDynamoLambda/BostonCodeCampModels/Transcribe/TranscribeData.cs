@@ -28,5 +28,8 @@ namespace BostonCodeCampModels.Transcribe
 
         [DynamoDBProperty("OutputFileData")]
         public string OutputFileData { get; set; }
+
+        public DateTime CreateDate => new DateTime(TimeStamp);
+
     }
 }
