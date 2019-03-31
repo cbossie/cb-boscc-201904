@@ -16,6 +16,8 @@ using BostonCodeCampServices.Service;
 using Microsoft.Extensions.Configuration;
 using Amazon.Polly;
 using Amazon.S3;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using Amazon.XRay.Recorder.Core;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -36,6 +38,7 @@ namespace TranscribeAndSave
             Environment = new EnvironmentService();
             ConfigService = new ConfigurationService(Environment);
             Config = ConfigService.GetConfiguration();
+            
 
 
             // Set up Dependency Injection
@@ -43,17 +46,25 @@ namespace TranscribeAndSave
             ConfigureServices(serviceCollection);
             var services = serviceCollection.BuildServiceProvider();
 
+
+            //Add XRay to the lambda
+            AWSXRayRecorder.InitializeInstance(Config);
+            AWSSDKHandler.RegisterXRay<IAmazonS3>();
+            AWSSDKHandler.RegisterXRay<IAmazonDynamoDB>();
+            AWSSDKHandler.RegisterXRay<IAmazonPolly>();
+
+
             TransDataSvc = services.GetService<ITranscribeDataService>();
             PollySvc = services.GetService<IPollyService>();
             FileSvc = services.GetService<IFileService>();
-
+            
         }
 
 
         public async Task FunctionHandler(DynamoDBEvent dynamoEvent, ILambdaContext context)
         {
             try
-            {
+            {                
                 context.Logger.LogLine($"Beginning to process {dynamoEvent.Records.Count} records...");
                 
                 foreach (var record in dynamoEvent.Records)
