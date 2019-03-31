@@ -49,8 +49,6 @@ namespace SiteDynamoLambda
             services.AddSingleton<IGeneralConfig>(genConfig);
 
 
-            //AWS XRay Config
-            AWSSDKHandler.RegisterXRayForAllServices();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
