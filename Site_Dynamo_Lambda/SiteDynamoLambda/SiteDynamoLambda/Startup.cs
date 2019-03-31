@@ -1,6 +1,8 @@
 using Amazon.DynamoDBv2;
 using Amazon.Polly;
 using Amazon.S3;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using BostonCodeCampModels.Transcribe;
 using BostonCodeCampServices.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -42,11 +44,13 @@ namespace SiteDynamoLambda
             services.AddAWSService<IAmazonPolly>();
             services.AddAWSService<IAmazonS3>();
 
-            var genConfig = new GeneralConfig();
+           var genConfig = new GeneralConfig();
             Configuration.Bind("GeneralConfig", genConfig);
             services.AddSingleton<IGeneralConfig>(genConfig);
 
 
+            //AWS XRay Config
+            AWSSDKHandler.RegisterXRayForAllServices();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -110,7 +114,13 @@ namespace SiteDynamoLambda
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+
+                // Add XRay for AWS
+                app.UseXRay("boscc34App");
             }
+
+
+
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedProto
