@@ -36,7 +36,7 @@ namespace SiteDynamoLambda
             services.AddTransient<IFileService, FileService>();
 
             //AWS Services
-            var awsOptions = Configuration.GetAWSOptions();
+            var awsOptions = Configuration.GetAWSOptions();            
             services.AddDefaultAWSOptions(awsOptions);
             services.AddAWSService<IAmazonDynamoDB>();
             services.AddAWSService<IAmazonPolly>();

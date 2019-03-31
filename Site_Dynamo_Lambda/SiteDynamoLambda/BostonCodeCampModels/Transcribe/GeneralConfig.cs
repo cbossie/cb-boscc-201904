@@ -11,5 +11,7 @@ namespace BostonCodeCampModels.Transcribe
         public string FileExtension { get; set; }
 
         public string AudioMimeType { get; set; }
+
+        public string TableName { get; set; }
     }
 }

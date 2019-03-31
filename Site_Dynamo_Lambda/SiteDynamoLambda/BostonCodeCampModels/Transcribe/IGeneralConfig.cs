@@ -9,5 +9,6 @@ namespace BostonCodeCampModels.Transcribe
         string BucketName { get; }
         string FileExtension { get; }
         string AudioMimeType { get; }
+        string TableName { get; }
     }
 }

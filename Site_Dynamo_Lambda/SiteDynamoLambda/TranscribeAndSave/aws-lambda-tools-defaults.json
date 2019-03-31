@@ -14,8 +14,9 @@
     "function-memory-size" : 256,
     "function-timeout"     : 30,
     "function-handler"     : "TranscribeAndSave::TranscribeAndSave.TranscribeFunction::FunctionHandler",
-    "function-name"        : "TranscribeFunction",
+    "function-name"        : "TranscribeFunction-Dev",
     "function-role"        : "arn:aws:iam::014168299099:role/lambda_exec_TranscribeFunction",
     "tracing-mode"         : "Active",
-    "environment-variables" : "\"ASPNETCORE_ENVIRONMENT\"=\"\""
+    "environment-variables" : "\"ASPNETCORE_ENVIRONMENT\"=\"Development\"",
+    "function-description"  : ""
 }

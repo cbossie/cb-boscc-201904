@@ -10,10 +10,18 @@ namespace BostonCodeCampServices.Service
     public class TranscribeDataService : ITranscribeDataService
     {
         IAmazonDynamoDB Client { get; }
+        IGeneralConfig AppConfig { get; }
 
-        public TranscribeDataService(IAmazonDynamoDB cli)
+        DynamoDBOperationConfig DyConfig { get; } 
+        public TranscribeDataService(IAmazonDynamoDB cli, IGeneralConfig cfg)
         {
             Client = cli;
+            AppConfig = cfg;
+            DyConfig = new DynamoDBOperationConfig
+            {
+                OverrideTableName = cfg.TableName
+            };
+            
         }
 
 
@@ -40,7 +48,7 @@ namespace BostonCodeCampServices.Service
 
                 using (var ctx = GetContext())
                 {
-                    await ctx.SaveAsync(data);
+                    await ctx.SaveAsync(data, DyConfig);
                     return true;
                 }
             }
@@ -64,8 +72,8 @@ namespace BostonCodeCampServices.Service
                         Amazon.DynamoDBv2.DocumentModel.ScanOperator.GreaterThan,
                         startDate.Value.Ticks);
                     
-                    
-                    var search = ctx.ScanAsync<TranscribeData>(new[] { dateTimeCond });
+                                       
+                    var search = ctx.ScanAsync<TranscribeData>(new[] { dateTimeCond }, DyConfig);
                     var items = await search.GetRemainingAsync();
 
                     data.AddRange(items);
@@ -85,7 +93,7 @@ namespace BostonCodeCampServices.Service
             {
                 using (var ctx = GetContext())
                 {
-                    var item = await ctx.LoadAsync<TranscribeData>(id, timestamp);
+                    var item = await ctx.LoadAsync<TranscribeData>(id, timestamp, DyConfig);
                     data = item;
                 }
             }
@@ -103,7 +111,7 @@ namespace BostonCodeCampServices.Service
             {
                 using (var ctx = GetContext())
                 {
-                    await ctx.SaveAsync(data);
+                    await ctx.SaveAsync(data, DyConfig);
                     retval = true;
                 }
             }
