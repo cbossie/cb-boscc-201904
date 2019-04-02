@@ -8,6 +8,8 @@ namespace BostonCodeCampModels.Transcribe
     [DynamoDBTable("cbnug-transcribedata")]
     public class TranscribeData
     {
+        private const int MaxStringLength = 75;
+
         public TranscribeData()
         {
             Id = Guid.NewGuid().ToString();
@@ -30,6 +32,9 @@ namespace BostonCodeCampModels.Transcribe
         public string OutputFileData { get; set; }
 
         public DateTime CreateDate => new DateTime(TimeStamp);
+
+        public string ShortenedText => TextToTranscribe.Length < MaxStringLength ? 
+            TextToTranscribe : $"{TextToTranscribe.Substring(0, Math.Min(50, TextToTranscribe.Length))}...";
 
     }
 }
