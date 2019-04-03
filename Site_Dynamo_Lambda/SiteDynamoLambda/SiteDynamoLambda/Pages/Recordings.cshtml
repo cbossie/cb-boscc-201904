@@ -35,7 +35,7 @@
                     <td>
                         @if (d.Complete)
                         {
-                            <a href="#" onclick="setAudio('@d.OutputFileData')">@d.OutputFileData</a>
+                            <a href="#" onclick="setAudio('@d.OutputFileData');return false;">@d.OutputFileData</a>
                         }
                         else
                         {
