@@ -35,11 +35,23 @@ namespace SiteDynamoLambda
             services.AddTransient<ITranscribeDataService, TranscribeDataService>();
             services.AddTransient<IFileService, FileService>();
 
-            //AWS Services
+
+
+
+            //AWS SDK Configuration
             var awsOptions = Configuration.GetAWSOptions();            
             services.AddDefaultAWSOptions(awsOptions);
+
+
+
+            // Add SDK clients to configuration
+            //DynamoDB
             services.AddAWSService<IAmazonDynamoDB>();
+           
+            //Polly Speech Synthesis
             services.AddAWSService<IAmazonPolly>();
+
+            //S3 Object Storage
             services.AddAWSService<IAmazonS3>();
 
             var genConfig = new GeneralConfig();
