@@ -9,6 +9,7 @@ This repository contains the source code for the reference application for the r
 
 
 The presentation can be found at:
-[https://boscc31.s3.amazonaws.com/AWS%20SDK%20CodeCamp%2031.pptx]
+
+https://boscc31.s3.amazonaws.com/AWS%20SDK%20CodeCamp%2031.pptx
 
 Thanks for attending the session!
