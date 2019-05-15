@@ -1,6 +1,8 @@
 using Amazon.DynamoDBv2;
+using Amazon.Extensions.NETCore.Setup;
 using Amazon.Polly;
 using Amazon.S3;
+using Amazon.SecretsManager;
 using BostonCodeCampModels.Transcribe;
 using BostonCodeCampServices.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -16,14 +18,48 @@ using Microsoft.IdentityModel.Tokens;
 using SiteDynamoLambda.Model;
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SiteDynamoLambda
 {
     public class Startup
     {
+
+        IAmazonSecretsManager SecManager { get;  set; }
+        AWSOptions AwsOpts { get; set; }
+
+        IGeneralConfig Config { get; set; }
+        OidcConfig OpenIdConnectConfig { get; set; }
+
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            // Configuration
+            AwsOpts = Configuration.GetAWSOptions();
+            Config = new GeneralConfig();
+            Configuration.Bind("GeneralConfig", Config);
+            OpenIdConnectConfig = new OidcConfig();
+            Configuration.Bind("CognitoOIDC", OpenIdConnectConfig);
+            SecManager = new AmazonSecretsManagerClient(AwsOpts.Region);
+
+        }
+
+        private async Task<string> GetOidcSecretKey()
+        {
+            var result = await SecManager.GetSecretValueAsync(new Amazon.SecretsManager.Model.GetSecretValueRequest()
+            {
+                SecretId = OpenIdConnectConfig.ClientSecretKey,
+                VersionStage = "AWSCURRENT"
+        });
+
+            var obj = JObject.Parse(result.SecretString);
+            var secret = obj["cognito-secret"]?.ToString();
+
+            return secret;
+
+
         }
 
         public IConfiguration Configuration { get; }
@@ -38,12 +74,8 @@ namespace SiteDynamoLambda
 
 
 
-            //AWS SDK Configuration
-            var awsOptions = Configuration.GetAWSOptions();            
-            services.AddDefaultAWSOptions(awsOptions);
-
-
-
+            //AWS SDK Configuration       
+            services.AddDefaultAWSOptions(AwsOpts);
             // Add SDK clients to configuration
             //DynamoDB
             services.AddAWSService<IAmazonDynamoDB>();
@@ -54,11 +86,13 @@ namespace SiteDynamoLambda
             //S3 Object Storage
             services.AddAWSService<IAmazonS3>();
 
-            var genConfig = new GeneralConfig();
-            Configuration.Bind("GeneralConfig", genConfig);
-            services.AddSingleton<IGeneralConfig>(genConfig);
+            //AWS SecretsManager
+            services.AddSingleton(SecManager);
 
+            services.AddSingleton<IGeneralConfig>(Config);
 
+            // SDK Secrets Manager
+            services.AddAWSService<IAmazonSecretsManager>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -68,10 +102,10 @@ namespace SiteDynamoLambda
             });
 
             // Add Authentication
-            var oidcCfg = new OidcConfig();
-            
-            Configuration.Bind("CognitoOIDC", oidcCfg);
-            var baseUrl = oidcCfg.BaseUrl;
+ 
+         
+
+            var baseUrl = OpenIdConnectConfig.BaseUrl;
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -81,24 +115,26 @@ namespace SiteDynamoLambda
                
             })
             .AddCookie()
-            .AddOpenIdConnect(options =>
+            .AddOpenIdConnect(async options =>
             {
-                options.ResponseType = oidcCfg.ResponseType;
-                options.MetadataAddress = oidcCfg.MetadataAddress;
-                options.ClientId = oidcCfg.ClientId;
-                options.ClientSecret = oidcCfg.ClientSecret;
+                options.ResponseType = OpenIdConnectConfig.ResponseType;
+                options.MetadataAddress = OpenIdConnectConfig.MetadataAddress;
+                options.ClientId = OpenIdConnectConfig.ClientId;
+                options.ClientSecret = await GetOidcSecretKey();
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname",
+                    ValidateAudience = false
                     
                 };
 
 
                 options.Events = new OpenIdConnectEvents
                 {
+
                     OnRedirectToIdentityProviderForSignOut = (context) =>
                     {
-                        var logoutUri = oidcCfg.LogoutUrl + oidcCfg.ClientId;
+                        var logoutUri = OpenIdConnectConfig.LogoutUrl + OpenIdConnectConfig.ClientId;
                         logoutUri += $"&logout_uri={Uri.EscapeDataString(baseUrl)}";
                         context.Response.Redirect(logoutUri);
                         context.HandleResponse();
@@ -113,6 +149,9 @@ namespace SiteDynamoLambda
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -132,6 +171,11 @@ namespace SiteDynamoLambda
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseMvcWithDefaultRoute();
+
+
+
+
+
         }
     }
 }
